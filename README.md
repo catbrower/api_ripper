@@ -1,0 +1,1 @@
+Requires postgres >= 9.1

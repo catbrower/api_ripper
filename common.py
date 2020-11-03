@@ -2,6 +2,14 @@ import os
 import psycopg2
 import multiprocessing
 
+def escape(string):
+    # escape(x) if isNumber(x) else "'" + escape(x) + "'"
+    if isString(string):
+        result = str(string).split("'")
+        return "'" + "''".join(result) + "'"
+    else:
+        return str(string)
+
 def isNumber(value):
     try:
         float(vlaue)
@@ -31,8 +39,8 @@ def getPath():
 
 def buildSQL(table, columns, values):
     _columns = ', '.join(['"desc"' if x == 'desc' else x for x in columns])
-    _values = ', '.join([str(x) if isNumber(x) else "'" + str(x) + "'" for x in values])
-    return ''.join(['INSERT INTO ', table, ' (', _columns, ') VALUES (', _values, ') ON CONFLICT DO NOTHING;'])
+    _values = ', '.join([escape(x) for x in values])
+    return ''.join(['INSERT INTO ', table, ' (', _columns, ') VALUES (', _values, ') ON CONFLICT DO NOTHING']).strip()
 
 def buildUrl(base, params):
     result = base

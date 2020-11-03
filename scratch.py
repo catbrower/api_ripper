@@ -1,8 +1,49 @@
-def exists(collection, index):
-    try:
-        return collection[index]
-    except:
-        return False
-
-a = ['yabba']
-print(exists(a, 1) else )
+INSERT INTO ticker_detail 
+logo,
+listdate,
+cik,
+bloomberg,
+figi,
+lei,
+sic,
+country,
+industry,
+sector,
+marketcap,
+employees,
+phone,
+ceo,
+url,
+description,
+exchange,
+name,
+symbol,
+hq_address,
+hq_state,
+hq_country,
+type,
+updated) VALUES 
+('https://s3.polygon.io/logos/a/logo.png',
+'1999-11-18',
+'1090872',
+'EQ0087231700001000',
+'None',
+'QUIX8Y7A2WP0XRMW7G29',
+'3825',
+'usa',
+'Medical Diagnostics & Research',
+'Healthcare',
+'23185380000',
+'13500',
+'+1 408 345-8886',
+'Michael R. McMullen',
+'http://www.agilent.com',
+'Agilent Technologies Inc is engaged in life sciences, diagnostics and applied chemical markets. The company provides application focused solutions that include instruments, software, services and consumables for the entire laboratory workflow.',
+'New York Stock Exchange',
+'Agilent Technologies Inc.',
+'A',
+'5301 Stevens Creek Boulevard Santa Clara CA, 95051',
+'CA',
+'USA',
+'cs',
+'12/05/2018') ON CONFLICT DO NOTHING

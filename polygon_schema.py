@@ -3,10 +3,10 @@ config = configparser.ConfigParser()
 config.read('config.conf')
 
 endpoints = {
-    'minute':    config['urls']['polygon_aggregates'],
+    'minute':        config['urls']['polygon_aggregates'],
     'tickers':       config['urls']['polygon_tickers'],
     'types':         config['urls']['polygon_types'],
-    'ticker_detail':       config['urls']['polygon_details'],
+    'ticker_detail': config['urls']['polygon_details'],
     'ticker_news':   config['urls']['polygon_ticker_news'],
     'markets':       config['urls']['polygon_markets'],
     'locales':       config['urls']['polygon_locales'],
@@ -75,7 +75,6 @@ ticker_detail = ['ticker',
     'description',
     'exchange',
     'name',
-    'symbol',
     'exchangeSymbo',
     'hq_address',
     'hq_state',

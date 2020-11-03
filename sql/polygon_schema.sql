@@ -33,14 +33,14 @@ CREATE TABLE IF NOT EXISTS tickers (
     market  VARCHAR NOT NULL,
     locale   VARCHAR NOT NULL,
     currency VARCHAR NOT NULL,
-    primaryExch VARCHAR NOT NULL,
+    primaryExch VARCHAR,
     active BOOLEAN NOT NULL,
     updated DATE NOT NULL,
     type VARCHAR,
     PRIMARY KEY(ticker),
     FOREIGN KEY(market) REFERENCES markets(market),
     FOREIGN KEY(locale) REFERENCES locales(locale),
-    FOREIGN KEY(type) REFERENCES asset_types(type)
+    FOREIGN KEY(type) REFERENCES types(type)
 );
 
 CREATE TABLE IF NOT EXISTS minute (
@@ -76,7 +76,6 @@ CREATE TABLE IF NOT EXISTS ticker_detail (
     description VARCHAR,
     exchange VARCHAR,
     name VARCHAR,
-    symbol VARCHAR,
     exchangeSymbo VARCHAR,
     hq_address VARCHAR,
     hq_state  VARCHAR,
@@ -87,7 +86,7 @@ CREATE TABLE IF NOT EXISTS ticker_detail (
     FOREIGN KEY(ticker) REFERENCES tickers(ticker),
     FOREIGN KEY(industry) REFERENCES industries(industry),
     FOREIGN KEY(sector) REFERENCES sectors(sector),
-    FOREIGN KEY(type) REFERENCES asset_types(type)
+    FOREIGN KEY(type) REFERENCES types(type)
 );
 
 CREATE TABLE IF NOT EXISTS financial (

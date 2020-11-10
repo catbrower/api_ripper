@@ -1,6 +1,5 @@
 import os
 import psycopg2
-import multiprocessing
 
 def escape(string):
     # escape(x) if isNumber(x) else "'" + escape(x) + "'"
@@ -30,9 +29,6 @@ def exists(collection, index):
             return True
     except:
         return False
-
-def getMaxThreads():
-    return 2 * int(multiprocessing.cpu_count()) - 1
 
 def getPath():
     return '/'.join(os.path.realpath(__file__).split('/')[0:-1])

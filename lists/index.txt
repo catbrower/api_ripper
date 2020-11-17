@@ -1,1 +1,0 @@
-^gspc, ^dji, ^ixic, ^nya, ^xax, ^buk100p, ^rut, ^VIX, ^FTSE, ^GDAXI, ^FCHI, ^ STOXX50E, ^N100, ^BFX, IMOEX.ME, ^N225, ^HSI, 000001.SS, 399001.SZ, ^STI, ^AXJO, ^AORD, ^BSESN, ^JKSE, ^KLSE, ^NZ50, ^KS11, ^TWII, ^GSPTSE, ^BVSP, ^MXX, ^IPSA, ^MERV, ^TA125.TA, ^CASE30, ^JN0U.JO

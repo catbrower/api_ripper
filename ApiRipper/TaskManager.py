@@ -5,8 +5,8 @@ import psycopg2
 import configparser
 from redis import Redis
 from rq import Queue as RedisQueue
-from Queue import Queue
-from polygon import common
+from ApiRipper import Queue
+from ApiRipper import Common
 
 class TaskManager:
     def do_sql(sql_string):
@@ -32,7 +32,7 @@ class TaskManager:
         self.num_threads = 24
         self.queue_index = 0
         self.queues = []
-        self.tasks = Queue()
+        self.tasks = Queue.Queue()
         self.cull_count = 0
         self.cull_tasks_thread = threading.Thread(target=TaskManager.cull_tasks, args=[self.tasks, self.cull_count])
         self.cull_tasks_thread.start()

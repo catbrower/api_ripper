@@ -2,3 +2,5 @@ Pipfile.lock
 data
 polygon.key
 dump.rdb
+.vscode
+.xvscode

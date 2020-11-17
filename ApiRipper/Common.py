@@ -16,14 +16,6 @@ def get_response(schema_file, table_key, url):
 
     return response
 
-def escape(string):
-    # escape(x) if isNumber(x) else "'" + escape(x) + "'"
-    if isString(string):
-        result = str(string).split("'")
-        return "'" + "''".join(result) + "'"
-    else:
-        return str(string)
-
 def isNumber(value):
     try:
         float(vlaue)
@@ -47,11 +39,6 @@ def exists(collection, index):
 
 def getPath():
     return '/'.join(os.path.realpath(__file__).split('/')[0:-1])
-
-def buildSQL(table, columns, values):
-    _columns = ', '.join(['"desc"' if x == 'desc' else x for x in columns])
-    _values = ', '.join([escape(x) for x in values])
-    return ''.join(['INSERT INTO ', table, ' (', _columns, ') VALUES (', _values, ') ON CONFLICT DO NOTHING']).strip()
 
 def buildUrl(base, params):
     result = base

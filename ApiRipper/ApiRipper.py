@@ -1,7 +1,7 @@
-import TaskManager
+from ApiRipper import TaskManager
 import datetime
 from datetime import date
-from polygon import common
+from ApiRipper import Common
 
 schema = {}
 schema_file = open('polygon/schema.py').read()
@@ -24,6 +24,6 @@ for table_key in schema['endpoints'].keys():
     
     for url in ripper(schema, table_key):
         if multithreaded:
-            tm.do_task(common.get_response, [schema_file, table_key, url])
+            tm.do_task(Common.get_response, [schema_file, table_key, url])
         else:
-            common.get_response(schema_file, table_key, url)
+            Common.get_response(schema_file, table_key, url)

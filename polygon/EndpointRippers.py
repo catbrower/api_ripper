@@ -1,5 +1,5 @@
 import math
-from polygon import common
+from ApiRipper import Common
 import urllib
 import urllib.request
 import json
@@ -19,14 +19,14 @@ def getAllTickers(connection_str):
     return results
 
 def rip_single_page(schema, table_key):
-    yield common.buildUrl(schema['endpoints'][table_key], schema['static_params'])
+    yield Common.buildUrl(schema['endpoints'][table_key], schema['static_params'])
 
 def rip_multi_page(schema, table_key):
     page = count = 1
 
     #Get one response, process it, and if it has pages then do below
     params = schema['static_params'] + [('page', page)]
-    url = common.buildUrl(schema['endpoints'][table_key], params)
+    url = Common.buildUrl(schema['endpoints'][table_key], params)
     response = json.loads(urllib.request.urlopen(url).read())
 
     num_pages = math.ceil(int(response['count']) / int(response['perPage']))
@@ -34,8 +34,8 @@ def rip_multi_page(schema, table_key):
     with alive_bar(num_pages) as bar:
         for page in range(1, num_pages):
             params = schema['static_params'] + [('page', page)]
-            yield common.buildUrl(schema['endpoints'][table_key], params)
-            # taskManager.do_task(get_response, [table_key, common.buildUrl(url, params)])
+            yield Common.buildUrl(schema['endpoints'][table_key], params)
+            # taskManager.do_task(get_response, [table_key, Common.buildUrl(url, params)])
 
             bar()
 
@@ -54,7 +54,7 @@ def rip_aggregates(schema, table_key):
             while date < date_to:
                 _date_to = date + datetime.timedelta(days=1)
                 params = schema['static_params'] + [('asset', ticker), ('date-from', date.strftime(date_format)), ('date-to', _date_to.strftime(date_format))]
-                yield common.buildUrl(schema['endpoints'][table_key], params)
+                yield Common.buildUrl(schema['endpoints'][table_key], params)
                 # taskManager.do_task(get_response, [table_key, url])
 
                 date += datetime.timedelta(days=1)
@@ -66,7 +66,7 @@ def rip_ticker_detail(schema, table_key):
     with alive_bar(len(tickers)) as bar:
         for ticker in tickers:
             params = schema['static_params'] + [('asset', ticker)]
-            yield common.buildUrl(schema['endpoints'][table_key], params)
+            yield Common.buildUrl(schema['endpoints'][table_key], params)
             # taskManager.do_task(target=get_response, args=(table_key, url))
 
             bar()

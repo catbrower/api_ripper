@@ -42,14 +42,20 @@ class TaskManager:
             # cur = conn.cursor()
             self.queues.append(RedisQueue(connection=Redis()))
 
-    def num_completed_tasks(self):
-        return self.cull_count
-
     def do_task(self, task, args):
         qi = self.queue_index
         new_task = self.queues[qi].enqueue(task, args, result_ttl=60)
         self.tasks.push(new_task)
         self.queue_index = qi + 1 if qi < len(self.queues) - 1 else 0
+
+    def num_completed_tasks(self):
+        return self.cull_count
+
+    def reset(self):
+        self.queue_index = 0
+        self.cull_count = 0
+        self.tasks = []
+        #might have to clear the queue too I dunno
 
     def allTasksComplete(self):
         return len(self.tasks) == 0

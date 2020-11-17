@@ -3,4 +3,5 @@ data
 polygon.key
 dump.rdb
 .vscode
-.xvscode
+.DS_Store
+**/__pycache__

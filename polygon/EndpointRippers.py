@@ -7,7 +7,6 @@ import datetime
 from datetime import date
 import configparser
 import psycopg2
-from alive_progress import alive_bar
 
 def getAllTickers(connection_str):
     connection = psycopg2.connect(connection_str)
@@ -30,14 +29,9 @@ def rip_multi_page(schema, table_key):
     response = json.loads(urllib.request.urlopen(url).read())
 
     num_pages = math.ceil(int(response['count']) / int(response['perPage']))
-
-    with alive_bar(num_pages) as bar:
-        for page in range(1, num_pages):
-            params = schema['static_params'] + [('page', page)]
-            yield Common.buildUrl(schema['endpoints'][table_key], params)
-            # taskManager.do_task(get_response, [table_key, Common.buildUrl(url, params)])
-
-            bar()
+    for page in range(1, num_pages):
+        params = schema['static_params'] + [('page', page)]
+        yield Common.buildUrl(schema['endpoints'][table_key], params)
 
 def rip_aggregates(schema, table_key):
     from datetime import date
@@ -48,25 +42,18 @@ def rip_aggregates(schema, table_key):
     num_days = (date_to - date_from).days + 1
     tickers = getAllTickers(schema['db_connection_str'])
 
-    with alive_bar(num_days * len(tickers)) as bar:
-        for ticker in tickers:
-            date = date_from
-            while date < date_to:
-                _date_to = date + datetime.timedelta(days=1)
-                params = schema['static_params'] + [('asset', ticker), ('date-from', date.strftime(date_format)), ('date-to', _date_to.strftime(date_format))]
-                yield Common.buildUrl(schema['endpoints'][table_key], params)
-                # taskManager.do_task(get_response, [table_key, url])
+    for ticker in tickers:
+        date = date_from
+        while date < date_to:
+            _date_to = date + datetime.timedelta(days=1)
+            params = schema['static_params'] + [('asset', ticker), ('date-from', date.strftime(date_format)), ('date-to', _date_to.strftime(date_format))]
+            yield Common.buildUrl(schema['endpoints'][table_key], params)
 
-                date += datetime.timedelta(days=1)
-                bar()
+            date += datetime.timedelta(days=1)
 
 def rip_ticker_detail(schema, table_key):
     tickers = getAllTickers(schema['db_connection_str'])
 
-    with alive_bar(len(tickers)) as bar:
-        for ticker in tickers:
-            params = schema['static_params'] + [('asset', ticker)]
-            yield Common.buildUrl(schema['endpoints'][table_key], params)
-            # taskManager.do_task(target=get_response, args=(table_key, url))
-
-            bar()
+    for ticker in tickers:
+        params = schema['static_params'] + [('asset', ticker)]
+        yield Common.buildUrl(schema['endpoints'][table_key], params)

@@ -1,5 +1,20 @@
 import os
 import psycopg2
+import urllib
+import json
+import time
+
+def get_response(schema_file, table_key, url):
+    schema = {}
+    exec(schema_file, {}, schema)
+    response = json.loads(urllib.request.urlopen(url).read())
+
+    if exists(schema['response_processors'], table_key):
+        schema['response_processors'][table_key](schema, table_key, response)
+    else:
+        schema['response_processors']['default'](schema, table_key, response)
+
+    return response
 
 def escape(string):
     # escape(x) if isNumber(x) else "'" + escape(x) + "'"

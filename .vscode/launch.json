@@ -8,7 +8,7 @@
             "name": "Python: Current File",
             "type": "python",
             "request": "launch",
-            "program": "${file}",
+            "program": "/Users/brower/workspace/finance_data_loader/ApiRipper.py",
             "console": "integratedTerminal"
         }
     ]

@@ -1,26 +1,59 @@
+import os
+from polygon import ResponseProcessors
+from polygon import EndpointRippers
 import configparser
 config = configparser.ConfigParser()
 config.read('config.conf')
 
+# path = '/'.join(os.path.realpath(__file__).split('/')[0:-1])
+path = '/Users/brower/workspace/finance_data_loader/'
+apiKey = open(path + '/polygon.key', 'r').read().strip()
+static_params = [('apiKey', apiKey), ('perPage', '50')]
+db_connection_str = ''.join(['dbname=', config['sql']['dbname'], ' user=', config['sql']['user']])
+base_url = 'https://api.polygon.io'
+
 endpoints = {
-    'minute':        config['urls']['polygon_aggregates'],
-    'tickers':       config['urls']['polygon_tickers'],
-    'types':         config['urls']['polygon_types'],
-    'ticker_detail': config['urls']['polygon_details'],
-    'ticker_news':   config['urls']['polygon_ticker_news'],
-    'markets':       config['urls']['polygon_markets'],
-    'locales':       config['urls']['polygon_locales'],
-    'splits':        config['urls']['polygon_splits'],
-    'dividends':     config['urls']['polygon_dividends'],
-    'financials':    config['urls']['polygon_financials'],
-    'market_status': config['urls']['polygon_market_status'],
-    'holidays':      config['urls']['polygon_holidays'],
-    'exchanges':     config['urls']['polygon_exchanges'],
-    'trades':        config['urls']['polygon_trades']
+    'types':         '/v2/reference/types?apiKey={apiKey}',
+    'markets':       '/v2/reference/markets?apiKey={apiKey}',
+    'locales':       '/v2/reference/locales?apiKey={apiKey}',
+    'exchanges':     '/v1/meta/exchanges?apiKey={apiKey}',
+    'tickers':       '/v2/reference/tickers?apiKey={apiKey}&sort=ticker&perpage={perPage}&page={page}',
+    'ticker_detail': '/v1/meta/symbols/{asset}/company?apiKey={apiKey}',
+    'financials':    '/v2/reference/financials/{asset}?apiKey={apiKey}',
+    'minute':        '/v2/aggs/ticker/{asset}/range/1/minute/{date-from}/{date-to}?apiKey={apiKey}',
+    
+    'ticker_news':   '/v1/meta/symbols/{asset}/news?apiKey={apiKey}',
+    'splits':        '/v2/reference/splits/{asset}?apiKey={apiKey}',
+    'dividends':     '/v2/reference/dividends/{asset}?apiKey={apiKey}',
+    'market_status': '/v1/marketstatus/now?apiKey={apiKey}',
+    'holidays':      '/v1/marketstatus/upcoming?apiKey={apiKey}',
+    'trades':        '/v2/ticks/stocks/trades/{asset}/{date}?apiKey={apiKey}'
 }
 
 for key in endpoints.keys():
-    endpoints[key] = config['urls']['polygon_base'] + endpoints[key]
+    endpoints[key] = base_url + endpoints[key]
+
+endpoint_rippers = {
+    'minute': EndpointRippers.rip_aggregates,
+    'ticker_detail': EndpointRippers.rip_ticker_detail,
+    'tickers': EndpointRippers.rip_multi_page,
+    'default': EndpointRippers.rip_single_page
+}
+
+response_processors = {
+    'ticker_detail': ResponseProcessors.process_ticker_detail,
+    'minute': ResponseProcessors.process_agreggates,
+    'types': ResponseProcessors.process_type,
+    'default': ResponseProcessors.process_default
+}
+
+sql = {
+    'types': {
+        'type': ['varchar'],
+        'desc': ['varchar'],
+        'is_index': ['boolean']
+    }
+}
 
 types = [
     'type',

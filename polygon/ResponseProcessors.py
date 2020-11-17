@@ -1,4 +1,28 @@
-def process_type(table, response):
+import TaskManager as tm
+import psycopg2
+
+
+def getResults(response, table):
+    from polygon import common
+    if common.exists(response, table):
+        return response[table]
+    elif common.exists(response, 'results'):
+        return response['results']
+    else:
+        return response
+
+def insert(conn, cursor, table, columns, values):
+    sql = common.buildSQL(table, columns, values)
+    insertLock.acquire()
+    try:
+        cursor.execute(sql)
+        conn.commit()
+    except Exception as err:
+        conn.rollback()
+        print('Insert failed:\t' + sql + '\n')
+    insertLock.release()
+
+def process_type(schema, table, response):
     results = response['results']
     columns = schema.types
 
@@ -10,13 +34,14 @@ def process_type(table, response):
         insert(conn, cursor, 'types', columns, values)
     conn.commit()
 
-def process_default(table, response):
+def process_default(schema, table, response):
     for item in getResults(response, table):
-        columns = [x for x in item.keys() if x in schema.tables[table]]
-        values = [item[x] for x in columns]
-        insert(conn, cursor, table, columns, values)
+        # columns = [x for x in item.keys() if x in schema.tables[table]]
+        # values = [item[x] for x in columns]
+        return 'done'
+        # insert(conn, cursor, table, columns, values)
 
-def process_ticker_detail(table, response):
+def process_ticker_detail(schema, table, response):
     insert(conn, cursor, 'industries', ['industry'], [response['industry']])
     insert(conn, cursor, 'sectors', ['sector'], [response['sector']])
     
@@ -25,16 +50,9 @@ def process_ticker_detail(table, response):
     ticker = response['symbol']
     insert(conn, cursor, table, ['ticker'] + columns, [ticker] + values)
 
-def process_agreggates(table, response):
+def process_agreggates(schema, table, response):
     for item in getResults(response, table):
         columns = schema.tables[table]
         values = [response['ticker'], item['t'], item['o'], item['h'], item['l'], item['c'], item['v'], item['n']]
         insert(conn, cursor, table, columns, values)
     conn.commit()
-
-response_processors = {
-    'ticker_detail': process_ticker_detail,
-    'minute': process_agreggates,
-    'types': process_type,
-    'default': process_default
-}

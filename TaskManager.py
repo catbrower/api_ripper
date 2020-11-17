@@ -6,16 +6,23 @@ import configparser
 from redis import Redis
 from rq import Queue as RedisQueue
 from Queue import Queue
+from polygon import common
 
 class TaskManager:
-    RQ_INDEX = 0
-    PSQL_INDEX = 1
-
-    def cull_tasks(tasks):
+    def do_sql(sql_string):
+        print(sql_string)
+        
+    def cull_tasks(tasks, cull_count):
         while(True):
-            while tasks.peek() is not None and tasks.peek().get_status() == 'finished':
-                tasks.pop()
-            time.sleep(0.1)
+            len = tasks.length()
+            if tasks.peek() is not None:
+                status = tasks.peek().get_status()
+                while tasks.peek().get_status() == 'finished':
+                    do_sql(tasks.pop().result)
+                    cull_count += 1
+
+                #check for status 'failed'
+            # time.sleep(0.1)
 
     def __init__(self):
         config = configparser.ConfigParser()
@@ -26,16 +33,21 @@ class TaskManager:
         self.queue_index = 0
         self.queues = []
         self.tasks = Queue()
-        self.cull_tasks_thhread = threading.Thread(target=TaskManager.cull_tasks, args=(self.tasks))
+        self.cull_count = 0
+        self.cull_tasks_thread = threading.Thread(target=TaskManager.cull_tasks, args=[self.tasks, self.cull_count])
+        self.cull_tasks_thread.start()
 
         for i in range(self.num_threads):
-            conn = psycopg2.connect('dbname=' + config['sql']['dbname'] + ' user=' + config['sql']['user'])
-            cur = conn.cursor()
-            self.queues.append([RedisQueue(connection=Redis()), conn, cur])
+            # conn = psycopg2.connect('dbname=' + config['sql']['dbname'] + ' user=' + config['sql']['user'])
+            # cur = conn.cursor()
+            self.queues.append(RedisQueue(connection=Redis()))
 
-    def doTask(self, task, args):
+    def num_completed_tasks(self):
+        return self.cull_count
+
+    def do_task(self, task, args):
         qi = self.queue_index
-        new_task = self.queues[qi][TaskManager.RQ_INDEX].enqueue(task, self.queues[qi][TaskManager.PSQL_INDEX] + args)
+        new_task = self.queues[qi].enqueue(task, args, result_ttl=60)
         self.tasks.push(new_task)
         self.queue_index = qi + 1 if qi < len(self.queues) - 1 else 0
 

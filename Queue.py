@@ -18,3 +18,6 @@ class Queue:
             return self.items[0]
         else:
             return None
+
+    def length(self):
+        return len(self.items)

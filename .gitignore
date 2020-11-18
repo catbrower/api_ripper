@@ -4,4 +4,3 @@ polygon.key
 dump.rdb
 .vscode
 .DS_Store
-**/__pycache__

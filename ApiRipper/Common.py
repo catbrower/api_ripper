@@ -4,17 +4,22 @@ import urllib
 import json
 import time
 
-def get_response(schema_file, table_key, url):
+#schema_file, table_key, url
+def get_response(args):
+    return True
     schema = {}
-    exec(schema_file, {}, schema)
-    response = json.loads(urllib.request.urlopen(url).read())
+    exec(args[0], {}, schema)
+    response = json.loads(urllib.request.urlopen(args[2]).read())
 
-    if exists(schema['response_processors'], table_key):
-        schema['response_processors'][table_key](schema, table_key, response)
-    else:
-        schema['response_processors']['default'](schema, table_key, response)
+    try:
+        if exists(schema['response_processors'], args[1]):
+            schema['response_processors'][table_key](schema, args[1], response)
+        else:
+            schema['response_processors']['default'](schema, args[1], response)
 
-    return response
+        return response
+    except Exception as err:
+        print(err)
 
 def isNumber(value):
     try:

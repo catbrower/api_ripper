@@ -1,3 +1,4 @@
+import sys
 import time
 import threading
 import multiprocessing
@@ -9,32 +10,42 @@ from ApiRipper import Queue
 from ApiRipper import Common
 
 class TaskManager:
-    def do_sql(sql_string):
-        print(sql_string)
+    def do_sql(self, sql_string):
+        pass
+        # print(sql_string)
         
-    def cull_tasks(tasks, cull_count):
+    def cull_tasks(self):
         while(True):
-            len = tasks.length()
-            if tasks.peek() is not None:
-                status = tasks.peek().get_status()
-                while tasks.peek().get_status() == 'finished':
-                    do_sql(tasks.pop().result)
-                    cull_count += 1
-
-                #check for status 'failed'
-            # time.sleep(0.1)
+            if self.kill_threads:
+                sys.exit(0)
+                
+            length = self.tasks.length()
+            if self.tasks.peek() is not None:
+                status = self.tasks.peek().get_status()
+                if status == 'queued' or status == 'started':
+                    time.sleep(0.1)
+                else:
+                    self.cull_count += 1
+                    task = self.tasks.pop()
+                    if status == 'finished':
+                        self.do_sql(task.result)
+                    elif status == 'failed':
+                        print('Task failed')
+                    else:
+                        print('Unhandled status: ' + status)
 
     def __init__(self):
         config = configparser.ConfigParser()
         config.read('config.conf')
 
         # self.num_threads = 2 * int(multiprocessing.cpu_count()) - 1
+        self.kill_threads = False
         self.num_threads = 24
         self.queue_index = 0
         self.queues = []
         self.tasks = Queue.Queue()
         self.cull_count = 0
-        self.cull_tasks_thread = threading.Thread(target=TaskManager.cull_tasks, args=[self.tasks, self.cull_count])
+        self.cull_tasks_thread = threading.Thread(target=self.cull_tasks, args=[])
         self.cull_tasks_thread.start()
 
         for i in range(self.num_threads):
@@ -54,8 +65,14 @@ class TaskManager:
     def reset(self):
         self.queue_index = 0
         self.cull_count = 0
-        self.tasks = []
+        self.tasks = Queue.Queue()
         #might have to clear the queue too I dunno
 
-    def allTasksComplete(self):
-        return len(self.tasks) == 0
+    def all_tasks_complete(self):
+        return self.tasks.length() == 0
+
+    def remaining_tasks(self):
+        return self.tasks.length()
+
+    def exit(self):
+        self.kill_threads = True

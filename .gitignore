@@ -4,3 +4,9 @@ polygon.key
 dump.rdb
 .vscode
 .DS_Store
+Thumbs.db
+**/__pycache__
+workers.pid
+scratch.py
+scratch?.py
+**/*.log

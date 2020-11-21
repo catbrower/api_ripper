@@ -6,7 +6,9 @@ import time
 
 #schema_file, table_key, url
 def get_response(args):
+    time.sleep(1)
     return True
+    
     schema = {}
     exec(args[0], {}, schema)
     response = json.loads(urllib.request.urlopen(args[2]).read())

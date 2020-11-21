@@ -1,6 +1,7 @@
 import sys
 import time
 import threading
+import subprocess
 import multiprocessing
 import psycopg2
 import configparser
@@ -17,7 +18,7 @@ class TaskManager:
     def cull_tasks(self):
         while(True):
             if self.kill_threads:
-                sys.exit(0)
+                break
                 
             length = self.tasks.length()
             if self.tasks.peek() is not None:
@@ -40,27 +41,24 @@ class TaskManager:
 
         # self.num_threads = 2 * int(multiprocessing.cpu_count()) - 1
         self.kill_threads = False
-        self.num_threads = 24
-        self.queue_index = 0
-        self.queues = []
+        self.num_threads = 100
+        # self.queue_index = 0
+        self.task_queue = RedisQueue(connection=Redis())
         self.tasks = Queue.Queue()
         self.cull_count = 0
         self.cull_tasks_thread = threading.Thread(target=self.cull_tasks, args=[])
         self.cull_tasks_thread.start()
-
-        for i in range(self.num_threads):
-            # conn = psycopg2.connect('dbname=' + config['sql']['dbname'] + ' user=' + config['sql']['user'])
-            # cur = conn.cursor()
-            self.queues.append(RedisQueue(connection=Redis()))
+        self.workers = []
+        self.error_file = open('worker_error.log', 'w')
+        self.output_file = open('worker_output.log', 'w')
+        for i in range(0, self.num_threads):
+            self.workers.append(subprocess.Popen(['rq', 'worker'], stdout=self.output_file, stderr=self.error_file))
 
     def do_task(self, task, args):
-        qi = self.queue_index
-        new_task = self.queues[qi].enqueue(task, args, result_ttl=60)
+        # qi = self.queue_index
+        new_task = self.task_queue.enqueue(task, args, result_ttl=60)
         self.tasks.push(new_task)
-        self.queue_index = qi + 1 if qi < len(self.queues) - 1 else 0
-
-    def num_completed_tasks(self):
-        return self.cull_count
+        # self.queue_index = qi + 1 if qi < len(self.queues) - 1 else 0
 
     def reset(self):
         self.queue_index = 0
@@ -71,8 +69,15 @@ class TaskManager:
     def all_tasks_complete(self):
         return self.tasks.length() == 0
 
+    def num_completed_tasks(self):
+        return self.cull_count
+
     def remaining_tasks(self):
         return self.tasks.length()
 
     def exit(self):
         self.kill_threads = True
+        for worker in self.workers:
+            worker.kill()
+        self.error_file.close()
+        self.output_file.close()

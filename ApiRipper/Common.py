@@ -12,7 +12,7 @@ def get_response(args):
 
     try:
         if exists(schema['response_processors'], args[1]):
-            return schema['response_processors'][table_key](schema, args[1], response)
+            return schema['response_processors'][args[1]](schema, args[1], response)
         else:
             return schema['response_processors']['default'](schema, args[1], response)
     except Exception as err:

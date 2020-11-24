@@ -43,7 +43,7 @@ endpoint_rippers = {
 response_processors = {
     'ticker_detail': ResponseProcessors.process_ticker_detail,
     'minute': ResponseProcessors.process_agreggates,
-    'types': ResponseProcessors.process_type,
+    'types': ResponseProcessors.process_types,
     'default': ResponseProcessors.process_default
 }
 

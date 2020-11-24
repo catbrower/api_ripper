@@ -37,13 +37,14 @@ class TaskManager:
                     time.sleep(0.1)
                 else:
                     self.cull_count += 1
-                    task = self.tasks.pop()
+                    task = self.tasks.peek()
                     if status == 'finished':
                         self.db_helper.execute(task.result)
                     elif status == 'failed':
                         print('Task failed')
                     else:
                         print('Unhandled status: ' + status)
+                    self.tasks.pop()
         
     def do_task(self, task, args):
         # qi = self.queue_index

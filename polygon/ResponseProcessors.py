@@ -21,37 +21,42 @@ def insert(conn, cursor, table, columns, values):
         print('Insert failed:\t' + sql + '\n')
     insertLock.release()
 
-def process_type(schema, table, response):
+def process_types(schema, table, response):
     results = response['results']
-    columns = schema.types
+    columns = schema['types']
 
+    sql = []
     for key in results['types'].keys():
         values = [key, results['types'][key], False]
-        insert(conn, cursor, 'types', columns, values)
+        sql.append(DBHelper.buildInsert(table, columns, values))
     for key in results['indexTypes'].keys():
         values = [key, results['indexTypes'][key], True]
-        insert(conn, cursor, 'types', columns, values)
-    conn.commit()
+        sql.append(DBHelper.buildInsert(table, columns, values))
+    return ';'.join(sql)
 
 def process_default(schema, table, response):
+    sql = []
     for item in getResults(response, table):
         columns = [x for x in item.keys() if x in schema['tables'][table]]
         values = [item[x] for x in columns]
-        return DBHelper.buildInsert(table, columns, values)
-        # insert(conn, cursor, table, columns, values)
+        sql.append(DBHelper.buildInsert(table, columns, values))
+    return ';'.join(sql)
 
 def process_ticker_detail(schema, table, response):
-    insert(conn, cursor, 'industries', ['industry'], [response['industry']])
-    insert(conn, cursor, 'sectors', ['sector'], [response['sector']])
+    sql = []
+    sql.append(DBHelper.buildInsert('industries', ['industry'], [response['industry']]))
+    sql.append(DBHelper.buildInsert('sectors', ['sector'], [response['sector']]))
     
     columns = [x for x in response.keys() if x in schema.tables[table]]
     values = [response[x].upper() if x == 'type' else response[x] for x in columns]
     ticker = response['symbol']
-    insert(conn, cursor, table, ['ticker'] + columns, [ticker] + values)
+    sql.append(DBHelper.buildInsert(table, ['ticker'] + columns, [ticker] + values))
+    return ';'.join(sql)
 
 def process_agreggates(schema, table, response):
+    sql = []
+    columns = schema.tables[table]
     for item in getResults(response, table):
-        columns = schema.tables[table]
         values = [response['ticker'], item['t'], item['o'], item['h'], item['l'], item['c'], item['v'], item['n']]
-        insert(conn, cursor, table, columns, values)
-    conn.commit()
+        sql.append(DBHelper.buildInsert(table, columns, values))
+    return ';'.join(sql)

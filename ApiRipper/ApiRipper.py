@@ -44,7 +44,12 @@ def exit():
 #Main stuff
 if multithreaded:
     run_processes()
-    
+
+for table_key in schema['sql_tables'].keys():
+    sql = DBHelper.buildTable(
+        table_key, schema['sql_tables'][table_key], schema['sql_table_constraints'][table_key])
+    db_helper.execute(sql)
+
 for table_key in schema['endpoints'].keys():
     print('Get ' + table_key)
     if len(ignore) > 0 and table_key in ignore:

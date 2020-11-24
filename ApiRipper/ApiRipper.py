@@ -5,18 +5,21 @@ from datetime import date
 import subprocess
 from alive_progress import alive_bar
 
-from ApiRipper import Common
-from ApiRipper import TaskManager
+from ApiRipper import Common, TaskManager
+from ApiRipper.DBHelper import DBHelper
 
 schema = {}
 schema_file = open('polygon/schema.py').read()
 exec(schema_file, {}, schema)
-ignore = ['aggregates', 'minute', 'ticker_detail', 'trades', 'market_status', 'holidays']
-do_only = ['tickers']
+num_workers = 100
+db_helper = DBHelper(schema['db_connection_str'])
+tm = TaskManager.TaskManager(db_helper)
+
+#Test vars
 multithreaded = True
 task_limit = 100
-num_workers = 100
-tm = TaskManager.TaskManager()
+ignore = ['aggregates', 'minute', 'ticker_detail', 'trades', 'market_status', 'holidays']
+do_only = ['tickers']
 
 #Processes
 workers = []
@@ -38,6 +41,8 @@ def exit():
     error_file.close()
     output_file.close()
 
+#Main stuff
+run_processes()
 for table_key in schema['endpoints'].keys():
     if len(ignore) > 0 and table_key in ignore:
         continue
@@ -61,21 +66,15 @@ for table_key in schema['endpoints'].keys():
             if multithreaded:
                 tm.do_task(Common.get_response, [schema_file, table_key, url])
             else:
-                Common.get_response(schema_file, table_key, url)
-
-        #iterate over num_complete_tasks to print bar
-
+                Common.get_response([schema_file, table_key, url])
+                
         tasks_complete = 0
         while not tm.all_tasks_complete():
-            time.sleep(1)
+            time.sleep(0.1)
 
             for i in range(0, tm.num_completed_tasks() - tasks_complete):
                 bar()
             tasks_complete = tm.num_completed_tasks()
-            # print(tm.remaining_tasks())
-    # with alive_bar(num_pages) as bar:
-    #     bar()
-
     tm.reset()
 
 exit()

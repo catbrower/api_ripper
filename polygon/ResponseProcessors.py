@@ -1,6 +1,6 @@
 import psycopg2
 from ApiRipper import Common
-from ApiRipper import DBHelper
+from ApiRipper.DBHelper import DBHelper
 
 def getResults(response, table):
     if Common.exists(response, table):

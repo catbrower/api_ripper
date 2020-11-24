@@ -3,7 +3,7 @@ from polygon import ResponseProcessors
 from polygon import EndpointRippers
 import configparser
 config = configparser.ConfigParser()
-config.read('config.conf')
+config.read('application_properties.conf')
 
 # path = '/'.join(os.path.realpath(__file__).split('/')[0:-1])
 path = '/Users/brower/workspace/finance_data_loader/'

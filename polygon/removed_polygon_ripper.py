@@ -23,7 +23,6 @@ max_threads = 24
 max_per_page = 50
 path = common.getPath()
 apiKey = open(path + '/polygon.key', 'r').read().strip()
-conn_str = 'dbname=finance user=brower'
 date_format = '%Y-%m-%d'
 date_from = datetime.datetime.strptime('2000-01-01', date_format)
 date_to = datetime.datetime.strptime(date.today().strftime(date_format), date_format)

@@ -16,10 +16,10 @@ db_helper = DBHelper(schema['db_connection_str'])
 tm = TaskManager.TaskManager(db_helper)
 
 #Test vars
-multithreaded = False
+multithreaded = True
 task_limit = 10
-ignore = ['trades', 'market_status', 'holidays']
-do_only = [ 'exchanges']
+ignore = ['trades', 'market_status', 'holidays', 'ticker_news', 'splits', 'dividends']
+do_only = []
 
 #Processes
 workers = []
@@ -76,7 +76,7 @@ for table_key in schema['endpoints'].keys():
                 tm.do_task(Common.get_response, [schema_file, table_key, url])
             else:
                 r = Common.get_response([schema_file, table_key, url])
-                print(r)
+                # print('response' + r)
                 
         tasks_complete = 0
         while not tm.all_tasks_complete():

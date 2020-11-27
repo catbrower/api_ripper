@@ -50,12 +50,12 @@ response_processors = {
 sql_tables = {
     'types': [
         ['type', 'varchar'],
-        ['"desc"', 'varchar'],
+        ['desc', 'varchar'],
         ['is_index', 'boolean']
     ],
     'markets': [
         ['market', 'varchar'],
-        ['"desc"', 'varchar']
+        ['desc', 'varchar']
     ],
     'locales': [
         ['locale', 'varchar'],
@@ -65,8 +65,17 @@ sql_tables = {
         ['industry', 'varchar']
     ],
     'sectors': [
-        ['sectors', 'varchar']
-    ]
+        ['sector', 'varchar']
+    ],
+    'exchanges': [
+        ['id', 'integer'],
+        ['type', 'varchar'],
+        ['market', 'varchar'],
+        ['mic', 'varchar'],
+        ['name', 'varchar'],
+        ['tape', 'varchar'],
+        ['code', 'varchar']
+    ],
     'tickers': [
         ['ticker', 'varchar'],
         ['name', 'varchar'],
@@ -80,15 +89,15 @@ sql_tables = {
     ],
     'minute': [
         ['ticker', 'varchar'],
-        ['time'], 'varchar',
-        ['adj_open', 'double'],
-        ['adj_high', 'double'],
-        ['adj_low', 'double'],
-        ['adj_close', 'double'],
-        ['adj_volume', 'double'],
+        ['time', 'varchar'],
+        ['adj_open', 'double precision'],
+        ['adj_high', 'double precision'],
+        ['adj_low', 'double precision'],
+        ['adj_close', 'double precision'],
+        ['adj_volume', 'double precision'],
         ['num_items', 'integer']
     ],
-    'ticker_detail' = [
+    'ticker_detail': [
         ['ticker', 'varchar'],
         ['logo', 'varchar'],
         ['listdate', 'date'],
@@ -222,12 +231,13 @@ sql_tables = {
     ]
 }
 
-sql_table_contraints = {
+sql_table_constraints = {
     'types': [['primary key', 'type']],
-    'markets': [['primary key', 'markets']],
-    'locales': [['primary key', 'locales']],
+    'markets': [['primary key', 'market']],
+    'locales': [['primary key', 'locale']],
     'industries': [['primary key', 'industry']],
     'sectors': [['primary key', 'sector']],
+    'exchanges': [['primary key', 'id']],
     'tickers': [
         ['primary key', 'ticker'],
         ['foreign key', 'market', 'markets', 'market'],
@@ -251,178 +261,4 @@ sql_table_contraints = {
     ],
 }
 
-types = [
-    'type',
-    'desc',
-    'is_index'
-]
-
-markets = [
-    'market',
-    'desc'
-]
-
-locales = [
-    'locale',
-    'name'
-]
-
-tickers = ['ticker',
-    'name',
-    'market',
-    'locale',
-    'currency',
-    'primaryExch',
-    'active',
-    'updated']
-
-minute = ['ticker',
-    'time',
-    'adj_open',
-    'adj_high',
-    'adj_low',
-    'adj_close',
-    'adj_volume',
-    'num_items']
-
-ticker_detail = ['ticker',
-    'logo',
-    'listdate',
-    'cik',
-    'bloomberg',
-    'figi',
-    'lei',
-    'sic',
-    'country',
-    'industry',
-    'sector',
-    'marketcap',
-    'employees',
-    'phone',
-    'ceo',
-    'url',
-    'description',
-    'exchange',
-    'name',
-    'exchangeSymbo',
-    'hq_address',
-    'hq_state',
-    'hq_country',
-    'type',
-    'updated']
-
-financial = ['ticker',
-    'period',
-    'calendarDate',
-    'reportPeriod',
-    'updated',
-    'dateKey',
-    'accumulatedOtherComprehensiveIncome',
-    'assets',
-    'assetsCurrent',
-    'assetsNonCurrent',
-    'bookValuePerShare',
-    'capitalExpenditure',
-    'cashAndEquivalents',
-    'cashAndEquivalentsUSD',
-    'costOfRevenue',
-    'consolidatedIncome',
-    'currentRatio',
-    'debtToEquityRatio',
-    'debt',
-    'debtCurrent',
-    'debtNonCurrent',
-    'debtUSD',
-    'deferredRevenue',
-    'depreciationAmortizationAndAccretion',
-    'deposits',
-    'dividendYield',
-    'dividendsPerBasicCommonShare',
-    'earningBeforeInterestTaxes',
-    'earningsBeforeInterestTaxesDepreciationAmortization',
-    'EBITDAMargin',
-    'earningsBeforeInterestTaxesDepreciationAmortizationUSD',
-    'earningBeforeInterestTaxesUSD',
-    'earningsBeforeTax',
-    'earningsPerBasicShare',
-    'earningsPerDilutedShare',
-    'earningsPerBasicShareUSD',
-    'shareholdersEquity',
-    'shareholdersEquityUSD',
-    'enterpriseValue',
-    'enterpriseValueOverEBIT',
-    'enterpriseValueOverEBITDA',
-    'freeCashFlow',
-    'freeCashFlowPerShare',
-    'foreignCurrencyUSDExchangeRate',
-    'grossProfit',
-    'grossMargin',
-    'goodwillAndIntangibleAssets',
-    'interestExpense',
-    'investedCapital',
-    'inventory',
-    'investments',
-    'investmentsCurrent',
-    'investmentsNonCurrent',
-    'totalLiabilities',
-    'currentLiabilities',
-    'liabilitiesNonCurrent',
-    'marketCapitalization',
-    'netCashFlow',
-    'netCashFlowBusinessAcquisitionsDisposals',
-    'issuanceEquityShares',
-    'issuanceDebtSecurities',
-    'paymentDividendsOtherCashDistributions',
-    'netCashFlowFromFinancing',
-    'netCashFlowFromInvesting',
-    'netCashFlowInvestmentAcquisitionsDisposals',
-    'netCashFlowFromOperations',
-    'effectOfExchangeRateChangesOnCash',
-    'netIncome',
-    'netIncomeCommonStock',
-    'netIncomeCommonStockUSD',
-    'netLossIncomeFromDiscontinuedOperations',
-    'netIncomeToNonControllingInterests',
-    'profitMargin',
-    'operatingExpenses',
-    'operatingIncome',
-    'tradeAndNonTradePayables',
-    'payoutRatio',
-    'priceToBookValue',
-    'priceEarnings',
-    'priceToEarningsRatio',
-    'propertyPlantEquipmentNet',
-    'preferredDividendsIncomeStatementImpact',
-    'sharePriceAdjustedClose',
-    'priceSales',
-    'priceToSalesRatio',
-    'tradeAndNonTradeReceivables',
-    'accumulatedRetainedEarningsDeficit',
-    'revenues',
-    'revenuesUSD',
-    'researchAndDevelopmentExpense',
-    'shareBasedCompensation',
-    'sellingGeneralAndAdministrativeExpense',
-    'shareFactor',
-    'shares',
-    'weightedAverageShares',
-    'weightedAverageSharesDiluted',
-    'salesPerShare',
-    'tangibleAssetValue',
-    'taxAssets',
-    'incomeTaxExpense',
-    'taxLiabilities',
-    'tangibleAssetsBookValuePerShare',
-    'workingCapital']
-
 table_names = ['types', 'markets', 'locales', 'tickers', 'minute', 'ticker_detail', 'financial']
-
-tables = {
-    'types': types,
-    'markets': markets,
-    'locales': locales,
-    'tickers': tickers,
-    'minute': minute,
-    'ticker_detail': ticker_detail,
-    'financial': financial
-}

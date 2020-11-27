@@ -2,6 +2,10 @@ import psycopg2
 from ApiRipper import Common
 from ApiRipper.DBHelper import DBHelper
 
+def getColumns(schema, table_key, response_fields):
+    allowed_fields = [x[0] for x in schema['sql_tables'][table_key]]
+    return [x for x in response_fields if x in allowed_fields]
+
 def getResults(response, table):
     if Common.exists(response, table):
         return response[table]
@@ -10,53 +14,42 @@ def getResults(response, table):
     else:
         return response
 
-def insert(conn, cursor, table, columns, values):
-    sql = Common.buildSQL(table, columns, values)
-    insertLock.acquire()
-    try:
-        cursor.execute(sql)
-        conn.commit()
-    except Exception as err:
-        conn.rollback()
-        print('Insert failed:\t' + sql + '\n')
-    insertLock.release()
-
-def process_types(schema, table, response):
+def process_types(schema, table_key, response):
     results = response['results']
-    columns = schema['types']
+    columns = [x[0] for x in schema['sql_tables'][table_key]]
 
     sql = []
     for key in results['types'].keys():
         values = [key, results['types'][key], False]
-        sql.append(DBHelper.buildInsert(table, columns, values))
+        sql.append(DBHelper.buildInsert(table_key, columns, values))
     for key in results['indexTypes'].keys():
         values = [key, results['indexTypes'][key], True]
-        sql.append(DBHelper.buildInsert(table, columns, values))
+        sql.append(DBHelper.buildInsert(table_key, columns, values))
     return ';'.join(sql)
 
-def process_default(schema, table, response):
+def process_default(schema, table_key, response):
     sql = []
-    for item in getResults(response, table):
-        columns = [x for x in item.keys() if x in schema['tables'][table]]
+    for item in getResults(response, table_key):
+        columns = getColumns(schema, table_key, item)
         values = [item[x] for x in columns]
-        sql.append(DBHelper.buildInsert(table, columns, values))
+        sql.append(DBHelper.buildInsert(table_key, columns, values))
     return ';'.join(sql)
 
-def process_ticker_detail(schema, table, response):
+def process_ticker_detail(schema, table_key, response):
     sql = []
     sql.append(DBHelper.buildInsert('industries', ['industry'], [response['industry']]))
     sql.append(DBHelper.buildInsert('sectors', ['sector'], [response['sector']]))
     
-    columns = [x for x in response.keys() if x in schema.tables[table]]
+    columns = getColumns(schema, table_key, response.keys())
     values = [response[x].upper() if x == 'type' else response[x] for x in columns]
     ticker = response['symbol']
-    sql.append(DBHelper.buildInsert(table, ['ticker'] + columns, [ticker] + values))
+    sql.append(DBHelper.buildInsert(table_key, ['ticker'] + columns, [ticker] + values))
     return ';'.join(sql)
 
-def process_agreggates(schema, table, response):
+def process_agreggates(schema, table_key, response):
     sql = []
-    columns = schema.tables[table]
-    for item in getResults(response, table):
+    columns = [x[0] for x in schema['sql_tables'][table_key]]
+    for item in getResults(response, table_key):
         values = [response['ticker'], item['t'], item['o'], item['h'], item['l'], item['c'], item['v'], item['n']]
-        sql.append(DBHelper.buildInsert(table, columns, values))
+        sql.append(DBHelper.buildInsert(table_key, columns, values))
     return ';'.join(sql)

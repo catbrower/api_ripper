@@ -7,6 +7,6 @@ dump.rdb
 Thumbs.db
 **/__pycache__
 workers.pid
-scratch.py
-scratch?.py
+scratch.*
+scratch?.*
 **/*.log

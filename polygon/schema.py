@@ -6,7 +6,7 @@ config = configparser.ConfigParser()
 config.read('application_properties.conf')
 
 # path = '/'.join(os.path.realpath(__file__).split('/')[0:-1])
-path = '/Users/brower/workspace/finance_data_loader/'
+path = config['general']['path']
 apiKey = open(path + '/polygon.key', 'r').read().strip()
 static_params = [('apiKey', apiKey), ('perPage', '50')]
 db_connection_str = ''.join(['dbname=', config['sql']['dbname'], ' user=', config['sql']['user']])

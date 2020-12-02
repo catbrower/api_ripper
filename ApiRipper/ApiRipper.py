@@ -4,22 +4,25 @@ import datetime
 from datetime import date
 import subprocess
 from alive_progress import alive_bar
+import configparser
 
 from ApiRipper import Common, TaskManager
 from ApiRipper.DBHelper import DBHelper
 
+config = configparser.ConfigParser()
+config.read('application_properties.conf')
 schema = {}
 schema_file = open('polygon/schema.py').read()
 exec(schema_file, {}, schema)
-num_workers = 100
+num_workers = int(config['general']['num_workers'])
 db_helper = DBHelper(schema['db_connection_str'])
 tm = TaskManager.TaskManager(db_helper)
 
 #Test vars
-multithreaded = True
-task_limit = 10
-ignore = ['trades', 'market_status', 'holidays', 'ticker_news', 'splits', 'dividends']
-do_only = []
+multithreaded = config['testing']['multithreaded'] == 1
+task_limit = int(config['testing']['task_limit'])
+ignore = [x.strip() for x in config['testing']['ignore'].split(',') if not x.strip() == '']
+do_only = [x.strip() for x in config['testing']['do_only'].split(',') if not x.strip() == '']
 
 #Processes
 workers = []
@@ -76,7 +79,9 @@ for table_key in schema['endpoints'].keys():
                 tm.do_task(Common.get_response, [schema_file, table_key, url])
             else:
                 r = Common.get_response([schema_file, table_key, url])
-                # print('response' + r)
+                if r is not None:
+                    db_helper.execute(r)
+                bar()
                 
         tasks_complete = 0
         while not tm.all_tasks_complete():

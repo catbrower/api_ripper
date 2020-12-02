@@ -11,7 +11,6 @@ def get_response(args):
     try:
         response = json.loads(urllib.request.urlopen(args[2]).read())
     except urllib.error.HTTPError as err:
-        # print('Error on URL:\t' + args[2])
         return None
 
     try:

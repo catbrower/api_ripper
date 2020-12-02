@@ -2,9 +2,10 @@ import psycopg2
 from ApiRipper import Common
 from ApiRipper.DBHelper import DBHelper
 
-def getColumns(schema, table_key, response_fields):
+def getColumns(schema, table_key, response):
     allowed_fields = [x[0] for x in schema['sql_tables'][table_key]]
-    return [x for x in response_fields if x in allowed_fields]
+    present_fields = [key for key in response.keys() if response[key] is not None]
+    return [x for x in present_fields if x in allowed_fields]
 
 def getResults(response, table):
     if Common.exists(response, table):
@@ -37,18 +38,23 @@ def process_default(schema, table_key, response):
 
 def process_ticker_detail(schema, table_key, response):
     sql = []
-    sql.append(DBHelper.buildInsert('industries', ['industry'], [response['industry']]))
-    sql.append(DBHelper.buildInsert('sectors', ['sector'], [response['sector']]))
+    if response['industry'] is not None:
+        sql.append(DBHelper.buildInsert('industries', ['industry'], [response['industry']]))
     
-    columns = getColumns(schema, table_key, response.keys())
+    if response['sector'] is not None:
+        sql.append(DBHelper.buildInsert('sectors', ['sector'], [response['sector']]))
+    
+    columns = getColumns(schema, table_key, response)
     values = [response[x].upper() if x == 'type' else response[x] for x in columns]
     ticker = response['symbol']
+    if None in values or None in columns:
+        print()
     sql.append(DBHelper.buildInsert(table_key, ['ticker'] + columns, [ticker] + values))
     return ';'.join(sql)
 
 def process_agreggates(schema, table_key, response):
     sql = []
-    columns = [x[0] for x in schema['sql_tables'][table_key]]
+    columns = getColumns(schema, table_key, response)
     for item in getResults(response, table_key):
         values = [response['ticker'], item['t'], item['o'], item['h'], item['l'], item['c'], item['v'], item['n']]
         sql.append(DBHelper.buildInsert(table_key, columns, values))

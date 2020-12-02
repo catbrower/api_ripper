@@ -14,10 +14,8 @@ class TaskManager:
         config = configparser.ConfigParser()
         config.read('config.conf')
 
-        # self.num_threads = 2 * int(multiprocessing.cpu_count()) - 1
         self.kill_threads = False
         self.num_threads = 100
-        # self.queue_index = 0
         self.task_queue = RedisQueue(connection=Redis())
         self.tasks = Queue.Queue()
         self.cull_count = 0
@@ -32,19 +30,21 @@ class TaskManager:
                 
             length = self.tasks.length()
             if self.tasks.peek() is not None:
-                status = self.tasks.peek().get_status()
+                task = self.tasks.peek()
+                status = task.get_status()
                 if status == 'queued' or status == 'started':
                     time.sleep(0.1)
                 else:
-                    task = self.tasks.peek()
                     if status == 'finished':
                         result = task.result
                         if(result is not None):
                             self.db_helper.execute(result)
+                        else:
+                            print("processor returned None")
                     elif status == 'failed':
                         print('Task failed')
                     else:
-                        print('Unhandled status: ' + status)
+                        print('Unhandled status: ' + str(status))
                     self.tasks.pop()
                     self.cull_count += 1
         

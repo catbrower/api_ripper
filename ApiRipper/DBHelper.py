@@ -46,7 +46,7 @@ class DBHelper():
                 self.connection.commit()
             except:
                 self.connection.rollback()
-                print('Error on sql:\n' + sql)
+                print('Error on sql:\n' + str(sql))
 
     def close(self):
         self.connection.close()

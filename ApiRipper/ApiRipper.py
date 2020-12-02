@@ -19,7 +19,7 @@ db_helper = DBHelper(schema['db_connection_str'])
 tm = TaskManager.TaskManager(db_helper)
 
 #Test vars
-multithreaded = config['testing']['multithreaded'] == 1
+multithreaded = int(config['testing']['multithreaded']) == 1
 task_limit = int(config['testing']['task_limit'])
 ignore = [x.strip() for x in config['testing']['ignore'].split(',') if not x.strip() == '']
 do_only = [x.strip() for x in config['testing']['do_only'].split(',') if not x.strip() == '']

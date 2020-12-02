@@ -39,8 +39,6 @@ class TaskManager:
                         result = task.result
                         if(result is not None):
                             self.db_helper.execute(result)
-                        else:
-                            print("processor returned None")
                     elif status == 'failed':
                         print('Task failed')
                     else:
